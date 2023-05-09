@@ -1,0 +1,26 @@
+version: '3.8'
+services:
+  db:
+      container_name: vk_telegram_pg
+      image: postgres
+      restart: always
+      environment:
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: pass
+        POSTGRES_DB:
+      ports:
+      - "5435:5432"
+      volumes:
+      - db-data:/var/lib/postgresql/data
+  bot:
+      container_name: vk_telegram
+      image: vk_telegram
+      depends_on:
+        - db
+      links:
+        - db
+      ports:
+        - "7000:7000"
+volumes:
+  db-data:
+    driver: local
