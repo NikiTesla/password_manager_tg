@@ -6,6 +6,7 @@ import (
 	"github.com/NikiTesla/vk_telegram/pkg/repository"
 )
 
+// mock database for commands testing
 type MockDB struct {
 	records []*repository.LoginPassword
 }

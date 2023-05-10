@@ -15,6 +15,7 @@ type Bot struct {
 	db  repository.DataBase
 }
 
+// NewBot creates NewBotApi, returns structure with it, environment and database as Bot
 func NewBot(env *environment.Environment, botToken string) (*Bot, error) {
 	bot, err := tgbotapi.NewBotAPI(botToken)
 	if err != nil {
@@ -29,6 +30,7 @@ func NewBot(env *environment.Environment, botToken string) (*Bot, error) {
 	}, nil
 }
 
+// Start inititates updates channel and starts listening for updates
 func (b *Bot) Start() error {
 	log.Printf("Bot authorized on account %s is running", b.bot.Self.UserName)
 
@@ -41,6 +43,7 @@ func (b *Bot) Start() error {
 	return nil
 }
 
+// initUpdatesChannel initiates channel for updates
 func (b *Bot) initUpdatesChannel() (tgbotapi.UpdatesChannel, error) {
 	u := tgbotapi.NewUpdate(0)
 	u.Timeout = 60

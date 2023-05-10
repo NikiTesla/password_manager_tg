@@ -3,6 +3,7 @@ package telegram
 import (
 	"fmt"
 	"strings"
+	"time"
 
 	"github.com/NikiTesla/vk_telegram/pkg/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
@@ -15,6 +16,7 @@ const (
 	commandDel   = "del"
 )
 
+// handleStart handles /start route, sends welcome info message to user
 func (b *Bot) handleStart(message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, `Добро пожаловать в менеджер паролей!
 	Вы можете хранить здесь свои данные для авторизации в различных сервисах
@@ -28,10 +30,23 @@ func (b *Bot) handleStart(message *tgbotapi.Message) error {
 	return err
 }
 
+// handleSet is a handle function to save account data
+// deleting message sent by user for not to storing password explicitly
+// requires three arguments from user to be sent with command /set
 func (b *Bot) handleSet(message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Error occured")
 	defer func() {
 		b.bot.Send(msg)
+	}()
+
+	// deletion of message with password after 30 seconds
+	go func() {
+		time.Sleep(30 * time.Second)
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    message.Chat.ID,
+			MessageID: message.MessageID,
+		}
+		b.bot.DeleteMessage(deleteConfig)
 	}()
 
 	args := strings.Split(message.CommandArguments(), " ")
@@ -53,33 +68,52 @@ func (b *Bot) handleSet(message *tgbotapi.Message) error {
 		msg.Text = "Произошла ошибка при записи в базу данных"
 		return fmt.Errorf("error occur while creating a record in database: %s", err)
 	}
-	msg.Text = fmt.Sprintf("Сохранены данные для аккаунта в %s для пользователя %s", serviceName, login)
+	msg.Text = fmt.Sprintf("Сохранены данные для аккаунта в %s", serviceName)
 
 	return nil
 }
 
+// handleGet is a handle function to get saved account data
+// deleting message sent by bot for not to storing password explicitly
+// requires one argument from user to be sent with command /get
 func (b *Bot) handleGet(message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Error occured")
-	defer func() {
-		b.bot.Send(msg)
-	}()
 
 	serviceName := message.CommandArguments()
 	if serviceName == "" {
 		msg.Text = "Необходимо ввести имя сериса после команды:\n/get [serviceName]"
+		b.bot.Send(msg)
 		return fmt.Errorf("not enough parameters sent. Need service name")
 	}
 
 	username, password, err := b.db.GetLoginPassword(message.From.ID, serviceName)
 	if err != nil {
 		msg.Text = "Произошла ошибка при поиске записи в базе данных"
+		b.bot.Send(msg)
 		return fmt.Errorf("error occur while search for a record in database: %s", err)
 	}
 
 	msg.Text = fmt.Sprintf("Ваши данные для сервиса %s:\nusername: %s\npassword: %s", serviceName, username, password)
+	sent_message, err := b.bot.Send(msg)
+	if err != nil {
+		return fmt.Errorf("cannot send message with text %s", msg.Text)
+	}
+
+	// deletion of message with password after 30 seconds
+	go func() {
+		time.Sleep(30 * time.Second)
+		deleteConfig := tgbotapi.DeleteMessageConfig{
+			ChatID:    sent_message.Chat.ID,
+			MessageID: sent_message.MessageID,
+		}
+		b.bot.DeleteMessage(deleteConfig)
+	}()
+
 	return nil
 }
 
+// handleDel is a handle function to delete saved account data
+// requires one argument from user to be sent with command /del
 func (b *Bot) handleDel(message *tgbotapi.Message) error {
 	msg := tgbotapi.NewMessage(message.Chat.ID, "Error occured")
 	defer func() {
