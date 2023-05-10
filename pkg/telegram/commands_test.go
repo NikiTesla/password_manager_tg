@@ -1,9 +1,10 @@
 package telegram
 
-import "testing"
+import (
+	"testing"
+)
 
 func TestSet(t *testing.T) {
-
 }
 
 func TestGet(t *testing.T) {

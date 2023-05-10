@@ -12,6 +12,14 @@ type MockDB struct {
 }
 
 func (m *MockDB) CreateLoginPassword(loginPassword *repository.LoginPassword) error {
+	for _, v := range m.records {
+		if loginPassword.ServiceName == v.ServiceName && loginPassword.UserID == v.UserID {
+			v.Login = loginPassword.Login
+			v.Password = loginPassword.Password
+
+			return nil
+		}
+	}
 	m.records = append(m.records, loginPassword)
 
 	return nil
@@ -24,8 +32,9 @@ func (m *MockDB) GetLoginPassword(user_id int, serviceName string) (string, stri
 		}
 	}
 
-	return "", "", nil
+	return "", "", fmt.Errorf("no data for the service")
 }
+
 func (m *MockDB) DeleteLoginPassword(user_id int, serviceName string) error {
 	for i, v := range m.records {
 		if user_id == v.UserID && serviceName == v.ServiceName {
@@ -34,5 +43,5 @@ func (m *MockDB) DeleteLoginPassword(user_id int, serviceName string) error {
 		}
 	}
 
-	return fmt.Errorf("there is no such record in database")
+	return fmt.Errorf("no data for the service")
 }
