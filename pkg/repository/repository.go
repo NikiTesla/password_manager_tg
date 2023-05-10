@@ -1,8 +1,8 @@
-package storage
+package repository
 
-type Storage interface {
+type DataBase interface {
 	CreateLoginPassword(loginPassword *LoginPassword) error
-	GetLoginPassword(user_id int, serviceName string) (*LoginPassword, error)
+	GetLoginPassword(user_id int, serviceName string) (string, string, error)
 	DeleteLoginPassword(user_id int, serviceName string) error
 }
 

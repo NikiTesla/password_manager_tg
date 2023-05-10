@@ -5,12 +5,14 @@ import (
 	"log"
 
 	"github.com/NikiTesla/vk_telegram/pkg/environment"
+	"github.com/NikiTesla/vk_telegram/pkg/repository"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api"
 )
 
 type Bot struct {
 	env *environment.Environment
 	bot *tgbotapi.BotAPI
+	db  repository.DataBase
 }
 
 func NewBot(env *environment.Environment, botToken string) (*Bot, error) {
@@ -23,6 +25,7 @@ func NewBot(env *environment.Environment, botToken string) (*Bot, error) {
 	return &Bot{
 		env: env,
 		bot: bot,
+		db:  &repository.PostgresDB{DB: env.DB},
 	}, nil
 }
 
@@ -38,19 +41,9 @@ func (b *Bot) Start() error {
 	return nil
 }
 
-func (b *Bot) handleUpdates(updates tgbotapi.UpdatesChannel) {
-	for update := range updates {
-		if update.Message == nil {
-			continue
-		}
+func (b *Bot) initUpdatesChannel() (tgbotapi.UpdatesChannel, error) {
+	u := tgbotapi.NewUpdate(0)
+	u.Timeout = 60
 
-		if update.Message.IsCommand() {
-			if err := b.handleCommand(update.Message); err != nil {
-				log.Print("error occured while command handling, error: ", err)
-			}
-			continue
-		}
-
-		b.handleMessage(update.Message)
-	}
+	return b.bot.GetUpdatesChan(u)
 }
