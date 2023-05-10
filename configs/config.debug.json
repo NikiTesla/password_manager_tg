@@ -4,8 +4,8 @@
     "debug": true,
     
     "db-config": {
-        "host": "127.0.0.1",
-        "port": 5435,
+        "host": "localhost",
+        "port": 5433,
         "username": "postgres",
         "dbname": "telegram",
         "sslmode": "disable"

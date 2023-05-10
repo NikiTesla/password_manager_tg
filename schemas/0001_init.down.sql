@@ -1,0 +1,5 @@
+DROP TABLE IF EXISTS passwords;
+
+DROP TABLE IF EXISTS users;
+
+DROP TABLE IF EXISTS services;

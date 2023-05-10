@@ -1,1 +1,3 @@
-TELEBOT_API=
+TELEBOT_API="...:..."
+CONFIGFILE="configs/config.debug.json"
+POSTGRES_PASSWORD="...
