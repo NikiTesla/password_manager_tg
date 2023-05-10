@@ -17,6 +17,7 @@ type DBConfig struct {
 type Config struct {
 	Port     int      `json:"port"`
 	Host     string   `json:"host"`
+	Debug    bool     `json:"debug"`
 	DBConfig DBConfig `json:"db-config"`
 }
 

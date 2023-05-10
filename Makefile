@@ -1,12 +1,12 @@
 PROJECTNAME=$(shell basename "$(PWD)")
 STDERR=/tmp/.$(PROJECTNAME)-stderr.txt
 
-all:
+build:
 	@ echo "  >  building all for $(PROJECTNAME)..."
-	@ go build -o $(PROJECTNAME) cmd/main.go
+	@ go build -o ./.bin/$(PROJECTNAME) cmd/main.go
 	@ sudo docker start vk_telegram_pg
 	@ sleep 0.1
-	@ ./$(PROJECTNAME)
+	@ ./.bin/$(PROJECTNAME)
 
 run:
 	@ echo "  >  running cmd/main.go file..."
