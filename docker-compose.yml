@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   db:
-      container_name: vk_pg
+      container_name: vk_telegram_pg
       image: postgres
       restart: always
       environment:
@@ -9,7 +9,7 @@ services:
         POSTGRES_PASSWORD: pass
         POSTGRES_DB: telegram
       ports:
-      - "5433:5432"
+      - "5435:5432"
       volumes:
       - db-data:/var/lib/postgresql/data
 
